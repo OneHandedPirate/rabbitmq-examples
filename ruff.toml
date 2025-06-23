@@ -1,0 +1,37 @@
+line-length = 88
+indent-width = 4
+target-version = "py312"
+extend-exclude = ["**/migrations/*.py"]
+
+[lint]
+select = [
+    "E", # pycodestyle errors
+    "W", # pycodestyle warnings
+    "F", # pyflakes
+    "I", # isort
+    "C4",
+    "UP",
+    "A",
+    "PLC",
+    "PLE",
+    "PLW",
+    "TID",
+    "COM"
+]
+ignore = ["C419", "E501", "PLC0206", "UP007", "COM812"]
+fixable = ["F401", "F501", "I001"]
+
+[lint.per-file-ignores]
+"**/apps.py" = ["F401"]
+"**/__init__.py" = ["TID252", "PLC0414", "F401"]
+
+[format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+docstring-code-format = false
+docstring-code-line-length = "dynamic"
+
+[lint.flake8-tidy-imports]
+ban-relative-imports = "all"
