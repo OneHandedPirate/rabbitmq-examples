@@ -34,7 +34,10 @@ def process_message(
         "[X] Finished processing message %s in %.3fs", body, end_time - start_time
     )
     logger.info("Sending acknowledgement")
-    channel.basic_ack(delivery_tag=method.delivery_tag)
+    if method.delivery_tag is not None:
+        channel.basic_ack(delivery_tag=method.delivery_tag)
+    else:
+        logger.warning("No delivery_tag found, message won't be acknowledged.")
 
 
 def consume_messages(channel: "BlockingChannel") -> None:
