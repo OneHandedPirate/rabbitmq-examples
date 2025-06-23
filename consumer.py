@@ -2,7 +2,7 @@ import logging
 import time
 from typing import TYPE_CHECKING
 
-from config import configure_logging, get_mq_connection, MQ_EXCHANGE, MQ_ROUTING_KEY
+from config import configure_logging, get_mq_connection, MQ_ROUTING_KEY
 
 if TYPE_CHECKING:
     from pika.adapters.blocking_connection import BlockingChannel
@@ -24,6 +24,11 @@ def process_message(
 
     logger.info("[ ] Start processing message: %r", body)
     start_time = time.time()
+
+    number = int(body[-2:])
+    is_odd = number % 2
+
+    time.sleep(is_odd * 2 + 1)
     end_time = time.time()
     logger.info(
         "[X] Finished processing message %s in %.3fs", body, end_time - start_time
@@ -36,6 +41,7 @@ def consume_messages(channel: "BlockingChannel") -> None:
     channel.basic_consume(
         queue=MQ_ROUTING_KEY,
         on_message_callback=process_message,
+        # auto_ack=True,  # auto acknowledgment
     )
     logger.info("Waiting for messages...")
     channel.start_consuming()
@@ -48,7 +54,7 @@ def main():
 
         with mq_connection.channel() as channel:
             logger.info("Created channel %s", channel)
-
+            channel.basic_qos(prefetch_count=1)
             consume_messages(channel)
 
 
