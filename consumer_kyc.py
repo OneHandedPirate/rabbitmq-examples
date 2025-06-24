@@ -2,8 +2,8 @@ import logging
 import time
 from typing import TYPE_CHECKING
 
-from config import configure_logging, get_mq_connection, MQ_ROUTING_KEY
-from rabbit import RabbitBase
+from config import configure_logging, MQ_QUEUE_NAME_KYC_EMAIL_UPDATES
+from rabbit.common import EmailUpdatesRabbit
 
 if TYPE_CHECKING:
     from pika.adapters.blocking_connection import BlockingChannel
@@ -23,16 +23,15 @@ def process_message(
     logger.info("Properties: %s", properties)
     logger.info("Body: %s", body)
 
-    logger.info("[ ] Start processing message: %r", body)
+    logger.info("[ ] Start processing new user email: %r", body)
+
     start_time = time.time()
-
-    number = int(body[-2:])
-    is_odd = number % 2
-
-    time.sleep(is_odd * 2 + 1)
+    time.sleep(2)
     end_time = time.time()
     logger.info(
-        "[X] Finished processing message %s in %.3fs", body, end_time - start_time
+        "[X] Finished processing message %s in %.3fs. Message is ok",
+        body,
+        end_time - start_time,
     )
     logger.info("Sending acknowledgement")
     if method.delivery_tag is not None:
@@ -41,23 +40,21 @@ def process_message(
         logger.warning("No delivery_tag found, message won't be acknowledged.")
 
 
-def consume_messages(channel: "BlockingChannel") -> None:
-    channel.basic_qos(prefetch_count=1)
-    channel.queue_declare(queue=MQ_ROUTING_KEY)
-    channel.basic_consume(
-        queue=MQ_ROUTING_KEY,
-        on_message_callback=process_message,
-        # auto_ack=True,  # auto acknowledgment
-    )
-    logger.info("Waiting for messages...")
-    channel.start_consuming()
-
-
 def main():
+    """
+    - declare exchange
+    - bind queue
+    - start consuming messages
+    :return:
+    """
+
     configure_logging()
 
-    with RabbitBase() as rabbit:
-        consume_messages(rabbit.channel)
+    with EmailUpdatesRabbit() as rabbit:
+        rabbit.consume_messages(
+            message_callback=process_message,
+            queue_name=MQ_QUEUE_NAME_KYC_EMAIL_UPDATES,
+        )
 
 
 if __name__ == "__main__":

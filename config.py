@@ -11,6 +11,10 @@ MQ_PASSWORD = "admin"
 MQ_EXCHANGE = ""
 MQ_ROUTING_KEY = "test"
 
+MQ_EMAIL_UPDATES_EXCHANGE_NAME = "email-updates"
+MQ_QUEUE_NAME_KYC_EMAIL_UPDATES = "kyc-email-updates"
+MQ_QUEUE_NAME_NEWSLETTER_EMAIL_UPDATES = "newsletter-email-updates"
+
 mq_connection_creds = pika.PlainCredentials(MQ_USER, MQ_PASSWORD)
 
 mq_connection_params = pika.ConnectionParameters(
