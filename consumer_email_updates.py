@@ -53,7 +53,7 @@ def main():
     with EmailUpdatesRabbit() as rabbit:
         rabbit.consume_messages(
             message_callback=process_message,
-            queue_name=MQ_QUEUE_NAME_NEWSLETTER_EMAIL_UPDATES
+            queue_name=MQ_QUEUE_NAME_NEWSLETTER_EMAIL_UPDATES,
         )
 
 

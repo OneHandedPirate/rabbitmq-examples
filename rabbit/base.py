@@ -26,7 +26,7 @@ class RabbitBase:
             raise RabbitException("You should you context manager")
         return self._channel
 
-    def __enter__(self) -> "Rabbit":
+    def __enter__(self) -> "RabbitBase":
         self.get_connection()
         self._channel = self._connection.channel()
         return self

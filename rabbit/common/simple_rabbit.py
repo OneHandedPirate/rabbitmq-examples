@@ -3,7 +3,11 @@ from typing import TYPE_CHECKING, Callable
 
 from pika.exchange_type import ExchangeType
 
-from config import MQ_EMAIL_UPDATES_EXCHANGE_NAME
+from config import (
+    MQ_ROUTING_KEY,
+    MQ_SIMPLE_DEAD_LETTER_KEY,
+    MQ_SIMPLE_DEAD_LETTER_EXCHANGE_NAME,
+)
 from rabbit.base import RabbitBase
 
 if TYPE_CHECKING:
@@ -13,34 +17,29 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-class RabbitEmailsMixin:
+class SimpleRabbitMixin:
     channel: "BlockingChannel"
 
-    def declare_email_updates_exchange(self) -> None:
+    def declare_queue(self) -> None:
         self.channel.exchange_declare(
-            exchange=MQ_EMAIL_UPDATES_EXCHANGE_NAME,
+            exchange=MQ_SIMPLE_DEAD_LETTER_EXCHANGE_NAME,
             exchange_type=ExchangeType.fanout,
         )
-
-    def declare_email_updates_queue(
-        self,
-        queue_name: str = "",
-        exclusive: bool = True,
-    ) -> str:
-        self.declare_email_updates_exchange()
-        queue = self.channel.queue_declare(
-            queue=queue_name,
-            exclusive=exclusive,
+        dlq = self.channel.queue_declare(
+            queue=MQ_SIMPLE_DEAD_LETTER_KEY,
         )
-
-        q_name = queue.method.queue
-
         self.channel.queue_bind(
-            exchange=MQ_EMAIL_UPDATES_EXCHANGE_NAME,
-            queue=q_name,
+            exchange=MQ_SIMPLE_DEAD_LETTER_EXCHANGE_NAME,
+            queue=MQ_SIMPLE_DEAD_LETTER_KEY,
         )
-
-        return q_name
+        logger.info("Declared dlq: %s", dlq.method.queue)
+        queue = self.channel.queue_declare(
+            queue=MQ_ROUTING_KEY,
+            arguments={
+                "x-dead-letter-exchange": MQ_SIMPLE_DEAD_LETTER_EXCHANGE_NAME,
+            },
+        )
+        logger.info("Declared queue: %s", queue.method.queue)
 
     def consume_messages(
         self,
@@ -53,19 +52,17 @@ class RabbitEmailsMixin:
             ],
             None,
         ],
-        queue_name: str = "",
         prefetch_count: int = 1,
     ):
         self.channel.basic_qos(prefetch_count=prefetch_count)
-        q_name = self.declare_email_updates_queue(
-            queue_name=queue_name, exclusive=not queue_name
-        )
+        self.declare_queue()
         self.channel.basic_consume(
-            queue=q_name,
+            queue=MQ_ROUTING_KEY,
             on_message_callback=message_callback,
+            # auto_ack=True,  # auto acknowledgment
         )
         logger.info("Waiting for messages...")
         self.channel.start_consuming()
 
 
-class EmailUpdatesRabbit(RabbitEmailsMixin, RabbitBase): ...
+class SimpleRabbit(SimpleRabbitMixin, RabbitBase): ...

@@ -14,6 +14,13 @@ MQ_ROUTING_KEY = "test"
 MQ_EMAIL_UPDATES_EXCHANGE_NAME = "email-updates"
 MQ_QUEUE_NAME_KYC_EMAIL_UPDATES = "kyc-email-updates"
 MQ_QUEUE_NAME_NEWSLETTER_EMAIL_UPDATES = "newsletter-email-updates"
+MQ_SIMPLE_DEAD_LETTER_EXCHANGE_NAME = "simple-dead-letter"
+MQ_SIMPLE_DEAD_LETTER_KEY = "dead-letter-key"
+
+# DEFAULT_LOG_FORMAT = "[%(asctime)s.%(msecs)03d] %(module)s:%(lineno)d %(funcName)20s %(levelname)-8s - %(message)s"
+DEFAULT_LOG_FORMAT = (
+    "[%(asctime)s.%(msecs)03d] %(module)s:%(lineno)d %(levelname)-6s - %(message)s"
+)
 
 mq_connection_creds = pika.PlainCredentials(MQ_USER, MQ_PASSWORD)
 
@@ -28,9 +35,13 @@ def get_mq_connection() -> pika.BlockingConnection:
     return pika.BlockingConnection(mq_connection_params)
 
 
-def configure_logging(level: int = logging.INFO):
+def configure_logging(
+    level: int = logging.INFO,
+    pika_log_level: int = logging.WARNING,
+) -> None:
     logging.basicConfig(
         level=level,
         datefmt="%Y-%m-%d %H:%M:%S",
-        format="[%(asctime)s.%(msecs)03d] %(funcName)20s %(module)s:%(lineno)d %(levelname)-8s - %(message)s",
+        format=DEFAULT_LOG_FORMAT,
     )
+    logging.getLogger("pika").setLevel(pika_log_level)
