@@ -3,8 +3,7 @@ import random
 import time
 from typing import TYPE_CHECKING
 
-from config import configure_logging, MQ_ROUTING_KEY
-from rabbit import RabbitBase
+from config import configure_logging
 from rabbit.common import SimpleRabbit
 
 if TYPE_CHECKING:

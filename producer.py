@@ -1,7 +1,7 @@
 import logging
 import time
 
-from config import configure_logging, MQ_EMAIL_UPDATES_EXCHANGE_NAME
+from config import MQ_EMAIL_UPDATES_EXCHANGE_NAME, configure_logging
 from rabbit.common import EmailUpdatesRabbit
 
 logger = logging.getLogger(__name__)

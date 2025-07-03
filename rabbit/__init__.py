@@ -4,6 +4,6 @@ __all__ = (
     "common",
 )
 
+from . import common
 from .base import RabbitBase
 from .exc import RabbitException
-from . import common

@@ -2,7 +2,7 @@ import logging
 import time
 from typing import TYPE_CHECKING
 
-from config import configure_logging, MQ_QUEUE_NAME_KYC_EMAIL_UPDATES
+from config import MQ_QUEUE_NAME_KYC_EMAIL_UPDATES, configure_logging
 from rabbit.common import EmailUpdatesRabbit
 
 if TYPE_CHECKING:

@@ -1,12 +1,13 @@
 import logging
-from typing import TYPE_CHECKING, Callable
+from collections.abc import Callable
+from typing import TYPE_CHECKING
 
 from pika.exchange_type import ExchangeType
 
 from config import (
     MQ_ROUTING_KEY,
-    MQ_SIMPLE_DEAD_LETTER_KEY,
     MQ_SIMPLE_DEAD_LETTER_EXCHANGE_NAME,
+    MQ_SIMPLE_DEAD_LETTER_KEY,
 )
 from rabbit.base import RabbitBase
 

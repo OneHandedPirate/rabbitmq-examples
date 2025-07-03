@@ -1,9 +1,8 @@
 import logging
 import time
 
-from config import configure_logging, get_mq_connection, MQ_EXCHANGE, MQ_ROUTING_KEY
+from config import MQ_EXCHANGE, MQ_ROUTING_KEY, configure_logging
 from rabbit.common import SimpleRabbit
-
 
 logger = logging.getLogger(__name__)
 

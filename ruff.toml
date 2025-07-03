@@ -18,7 +18,7 @@ select = [
     "TID",
     "COM"
 ]
-ignore = ["C419", "E501", "PLC0206", "UP007", "COM812"]
+ignore = ["C419", "E501", "PLC0206", "UP007", "COM812", "UP045"]
 fixable = ["F401", "F501", "I001"]
 
 [lint.per-file-ignores]
